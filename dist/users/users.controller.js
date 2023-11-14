@@ -16,6 +16,8 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const users_service_1 = require("./users.service");
+const swagger_1 = require("@nestjs/swagger");
+const users_model_1 = require("./users.model");
 let UsersController = class UsersController {
     constructor(userService) {
         this.userService = userService;
@@ -29,6 +31,8 @@ let UsersController = class UsersController {
 };
 exports.UsersController = UsersController;
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Create User' }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: users_model_1.User }),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -36,12 +40,15 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "create", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Func for get all users' }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: [users_model_1.User] }),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getAll", null);
 exports.UsersController = UsersController = __decorate([
+    (0, swagger_1.ApiTags)('Users operations'),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
 ], UsersController);
