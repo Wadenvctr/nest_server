@@ -12,20 +12,45 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const users_service_1 = require("../users/users.service");
+const bcrypt = require("bcryptjs");
 let AuthService = class AuthService {
     constructor(UserService, jwtService) {
         this.UserService = UserService;
         this.jwtService = jwtService;
     }
     async login(userDto) {
+        const user = await this.validateUser(userDto);
+        return this.generateToken(user);
     }
     async registration(userDto) {
-        const candidate = await this.UserService;
+        const candidate = await this.UserService.getUserByEmail(userDto.email);
+        if (candidate) {
+            throw new common_1.HttpException('U already registred', common_1.HttpStatus.BAD_REQUEST);
+        }
+        const hashPassword = await bcrypt.hash(userDto.password, 5);
+        const user = await this.UserService.createUser({ ...userDto, password: hashPassword });
+        return this.generateToken(user);
+    }
+    async generateToken(user) {
+        const payload = { email: user.email, id: user.id, roles: user.roles };
+        return {
+            token: this.jwtService.sign(payload)
+        };
+    }
+    async validateUser(userDto) {
+        const user = await this.UserService.getUserByEmail(userDto.email);
+        const passwordEquals = await bcrypt.compare(userDto.password, user.password);
+        if (user && passwordEquals) {
+            return user;
+        }
+        throw new common_1.UnauthorizedException({ message: 'Incorrect email or password' });
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [Object, jwt_1.JwtService])
+    __metadata("design:paramtypes", [users_service_1.UsersService,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map
